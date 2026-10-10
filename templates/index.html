@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="home-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Python · Mathematics · Web development</p>
+        <h1>Small scripts,<br><em>useful systems.</em></h1>
+        <p class="hero-lead">Python Learning Lab shows how four beginner command-line programs can grow into clear, persistent, interactive web applications.</p>
+        <a class="button primary" href="{{ url_for('planner') }}">Open the lab <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="code-panel" aria-label="Project principles">
+        <p><span>01</span> Preserve the core logic</p>
+        <p><span>02</span> Make state visible</p>
+        <p><span>03</span> Explain the maths</p>
+        <p><span>04</span> Store what matters</p>
+    </div>
+</section>
+
+<section class="home-intro" aria-labelledby="lab-title">
+    <p class="eyebrow">The lab</p>
+    <div>
+        <h2 id="lab-title">Four exercises, rebuilt with purpose.</h2>
+        <p>Each tool keeps the approachable logic of its original Python script while adding structure, validation, persistence, and a responsive interface.</p>
+    </div>
+</section>
+
+<section class="tool-grid" aria-label="Learning lab tools">
+    <a class="tool-card planner-card" href="{{ url_for('planner') }}">
+        <span class="tool-number">01</span><span class="tool-tag">SQLite</span>
+        <h2>Student Planner</h2>
+        <p>Organise assessments by module, due date, priority, and completion state.</p>
+        <span class="card-link">Plan work →</span>
+    </a>
+    <a class="tool-card guessing-card" href="{{ url_for('guessing') }}">
+        <span class="tool-number">02</span><span class="tool-tag">Algorithms</span>
+        <h2>Number Guessing Lab</h2>
+        <p>Track a shrinking search range and compare your strategy with binary search.</p>
+        <span class="card-link">Start guessing →</span>
+    </a>
+    <a class="tool-card rps-card" href="{{ url_for('rps') }}">
+        <span class="tool-number">03</span><span class="tool-tag">Patterns</span>
+        <h2>Adaptive RPS</h2>
+        <p>Play a random opponent or one that learns a simple pattern from your moves.</p>
+        <span class="card-link">Challenge it →</span>
+    </a>
+    <a class="tool-card dice-card" href="{{ url_for('dice') }}">
+        <span class="tool-number">04</span><span class="tool-tag">Probability</span>
+        <h2>Dice Probability Lab</h2>
+        <p>Run simulations and compare experimental results with exact probabilities.</p>
+        <span class="card-link">Run a simulation →</span>
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Number Guessing Lab · Python Learning Lab{% endblock %}
+{% block content %}
+<header class="page-hero compact guessing-accent"><p class="eyebrow">02 · Search algorithms</p><h1>Number Guessing Lab</h1><p>Use higher and lower feedback to shrink the range, then compare your path with binary search.</p></header>
+{% if not game %}
+<section class="panel start-panel"><p class="eyebrow">Choose a difficulty</p><h2>Find a number from 0 to 100.</h2><form method="post"><input type="hidden" name="action" value="start"><div class="difficulty-grid">{% for key, option in difficulties.items() %}<label><input type="radio" name="difficulty" value="{{ key }}"{% if key == 'medium' %} checked{% endif %}><span><strong>{{ option.label }}</strong><small>{{ option.attempts }} attempts</small></span></label>{% endfor %}</div><button class="button primary" type="submit">Start a round</button></form></section>
+{% else %}
+<div class="lab-layout">
+    <section class="panel game-panel">
+        <div class="range-display"><span>Remaining range</span><strong>{{ game.low }}—{{ game.high }}</strong></div>
+        <div class="attempt-meter"><span>{{ game.guesses|length }} of {{ game.max_attempts }} attempts used</span><progress value="{{ game.guesses|length }}" max="{{ game.max_attempts }}"></progress></div>
+        {% if not game.finished %}
+        <form method="post" class="guess-form"><input type="hidden" name="action" value="guess"><label for="guess">Your next guess</label><div><input id="guess" name="guess" type="number" min="{{ game.low }}" max="{{ game.high }}" required autofocus><button class="button primary" type="submit">Check guess</button></div></form>
+        {% else %}
+        <div class="result-banner {{ 'success' if game.won else 'neutral' }}"><p>{{ 'You found it.' if game.won else 'Round complete.' }}</p><strong>The number was {{ game.secret }}.</strong></div>
+        <form method="post"><input type="hidden" name="action" value="restart"><input type="hidden" name="difficulty" value="{{ game.difficulty }}"><button class="button primary" type="submit">Play again</button></form>
+        {% endif %}
+        <div class="guess-history"><h2>Your guesses</h2>{% if game.guesses %}<ol>{% for guess in game.guesses %}<li>{{ guess }}</li>{% endfor %}</ol>{% else %}<p>No guesses yet.</p>{% endif %}</div>
+    </section>
+    <aside class="panel explanation-panel"><p class="eyebrow">Algorithm note</p><h2>How binary search works</h2><p>Binary search checks the middle of the valid range. Each answer removes half of the remaining numbers, so a target from 0 to 100 takes at most seven checks.</p>{% if comparison %}<h3>Binary search for {{ game.secret }}</h3><ol class="search-steps">{% for step in comparison %}<li><span>{{ step.low }}—{{ step.high }}</span><strong>Try {{ step.guess }}</strong></li>{% endfor %}</ol><p>Your attempts: <strong>{{ game.guesses|length }}</strong> · Binary search: <strong>{{ comparison|length }}</strong></p>{% endif %}</aside>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Student Planner · Python Learning Lab{% endblock %}
+{% block content %}
+<header class="page-hero compact">
+    <p class="eyebrow">01 · SQLite persistence</p>
+    <h1>Student Planner</h1>
+    <p>Turn deadlines into a clear plan. Assessments stay saved between visits.</p>
+</header>
+
+<section class="stat-grid" aria-label="Planner summary">
+    <div><strong>{{ stats.remaining }}</strong><span>Remaining</span></div>
+    <div><strong>{{ stats.due_soon }}</strong><span>Due in 7 days</span></div>
+    <div><strong>{{ stats.overdue }}</strong><span>Overdue</span></div>
+    <div><strong>{{ stats.completed }}</strong><span>Completed</span></div>
+</section>
+<div class="progress-block">
+    <div><span>Overall progress</span><strong>{{ stats.progress }}%</strong></div>
+    <progress value="{{ stats.completed }}" max="{{ stats.total or 1 }}">{{ stats.progress }}%</progress>
+</div>
+
+<div class="planner-layout">
+    <section class="panel form-panel" aria-labelledby="add-task-title">
+        <div class="panel-heading"><p class="eyebrow">New assessment</p><h2 id="add-task-title">Add to the plan</h2></div>
+        <form method="post" novalidate>
+            <label>Title
+                <input name="title" maxlength="120" required value="{{ form_values.get('title', '') }}" aria-describedby="title-error">
+                {% if errors.title %}<span class="field-error" id="title-error">{{ errors.title }}</span>{% endif %}
+            </label>
+            <label>Description
+                <textarea name="description" maxlength="1000" rows="3">{{ form_values.get('description', '') }}</textarea>
+                {% if errors.description %}<span class="field-error">{{ errors.description }}</span>{% endif %}
+            </label>
+            <div class="form-row">
+                <label>Module
+                    <select name="module" required>
+                        <option value="">Choose a module</option>
+                        {% for module in modules %}<option{% if form_values.get('module') == module %} selected{% endif %}>{{ module }}</option>{% endfor %}
+                    </select>
+                    {% if errors.module %}<span class="field-error">{{ errors.module }}</span>{% endif %}
+                </label>
+                <label>Due date
+                    <input type="date" name="due_date" required value="{{ form_values.get('due_date', '') }}">
+                    {% if errors.due_date %}<span class="field-error">{{ errors.due_date }}</span>{% endif %}
+                </label>
+            </div>
+            <fieldset class="choice-group">
+                <legend>Priority</legend>
+                {% for priority in priorities %}
+                <label><input type="radio" name="priority" value="{{ priority }}"{% if form_values.get('priority', 'Medium') == priority %} checked{% endif %}> {{ priority }}</label>
+                {% endfor %}
+                {% if errors.priority %}<span class="field-error">{{ errors.priority }}</span>{% endif %}
+            </fieldset>
+            <button class="button primary" type="submit">Add assessment</button>
+        </form>
+    </section>
+
+    <section class="task-area" aria-labelledby="task-list-title">
+        <form class="filters" method="get" aria-label="Filter tasks">
+            <select name="module" aria-label="Filter by module"><option value="">All modules</option>{% for module in modules %}<option{% if filters.get('module') == module %} selected{% endif %}>{{ module }}</option>{% endfor %}</select>
+            <select name="priority" aria-label="Filter by priority"><option value="">All priorities</option>{% for priority in priorities %}<option{% if filters.get('priority') == priority %} selected{% endif %}>{{ priority }}</option>{% endfor %}</select>
+            <select name="status" aria-label="Filter by status"><option value="">Any status</option><option value="remaining"{% if filters.get('status') == 'remaining' %} selected{% endif %}>Remaining</option><option value="completed"{% if filters.get('status') == 'completed' %} selected{% endif %}>Completed</option></select>
+            <select name="deadline" aria-label="Filter by deadline"><option value="">Any deadline</option><option value="overdue"{% if filters.get('deadline') == 'overdue' %} selected{% endif %}>Overdue</option><option value="soon"{% if filters.get('deadline') == 'soon' %} selected{% endif %}>Due soon</option></select>
+            <select name="sort" aria-label="Sort tasks"><option value="due_date">Due date first</option><option value="priority"{% if filters.get('sort') == 'priority' %} selected{% endif %}>Priority first</option></select>
+            <button class="button secondary" type="submit">Apply</button>
+            <a class="text-link" href="{{ url_for('planner') }}">Clear</a>
+        </form>
+        <div class="section-heading"><div><p class="eyebrow">Your workload</p><h2 id="task-list-title">Assessments</h2></div><span>{{ tasks|length }} shown</span></div>
+        {% if tasks %}
+        <div class="task-list">
+            {% for task in tasks %}
+            <article class="task-item{% if task.completed %} is-complete{% endif %}">
+                <div class="task-state" aria-hidden="true">{{ '✓' if task.completed else loop.index }}</div>
+                <div class="task-main">
+                    <div class="task-meta"><span>{{ task.module }}</span><span class="priority {{ task.priority|lower }}">{{ task.priority }}</span></div>
+                    <h3>{{ task.title }}</h3>
+                    {% if task.description %}<p>{{ task.description }}</p>{% endif %}
+                    <p class="due-date">Due {{ task.due_date }} · Added {{ task.created_at }}</p>
+                </div>
+                <div class="task-actions">
+                    <form method="post" action="{{ url_for('toggle_task_route', task_id=task.id) }}"><input type="hidden" name="next" value="{{ request.full_path }}"><button class="text-button" type="submit">{{ 'Reopen' if task.completed else 'Complete' }}</button></form>
+                    <a class="text-link" href="{{ url_for('edit_task', task_id=task.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('delete_task_route', task_id=task.id) }}" data-confirm="Delete ‘{{ task.title }}’? This cannot be undone."><button class="text-button danger" type="submit">Delete</button></form>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}<div class="empty-state"><strong>No assessments match.</strong><p>Add one or adjust the filters.</p></div>{% endif %}
+    </section>
+</div>
+{% endblock %}

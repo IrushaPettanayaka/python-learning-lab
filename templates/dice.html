@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Dice Probability Lab · Python Learning Lab{% endblock %}
+{% block content %}
+<header class="page-hero compact dice-accent"><p class="eyebrow">04 · Experimental probability</p><h1>Dice Probability Lab</h1><p>Roll once or simulate thousands of trials, then compare what happened with exact probability.</p></header>
+<section class="panel dice-controls">
+    {% if errors %}<div class="error-summary" role="alert"><strong>Check the inputs:</strong><ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
+    <form method="post"><div class="input-grid"><label>Number of dice<input type="number" name="number_of_dice" min="1" max="10" value="{{ values.get('number_of_dice', 2) }}" required></label><label>Sides per die<input type="number" name="sides" min="2" max="100" value="{{ values.get('sides', 6) }}" required></label><label>Simulations<input type="number" name="simulations" min="1" max="100000" value="{{ values.get('simulations', 1000) }}" required></label></div><div class="form-actions"><button class="button secondary" type="submit" name="mode" value="roll">Roll once</button><button class="button primary" type="submit" name="mode" value="simulate">Run simulation</button></div></form>
+</section>
+{% if result and result.mode == 'roll' %}
+<section class="single-roll panel"><p class="eyebrow">Single roll</p><div class="dice-row">{% for roll in result.rolls %}<span>{{ roll }}</span>{% endfor %}</div><p>Total <strong>{{ result.total }}</strong></p></section>
+{% elif result and result.mode == 'simulation' %}
+<section class="result-summary"><div><span>Trials</span><strong>{{ "{:,}".format(result.simulations) }}</strong></div><div><span>Experimental mean</span><strong>{{ '%.2f'|format(result.mean) }}</strong></div><div><span>Most common total</span><strong>{{ result.most_common }}</strong></div></section>
+<section class="panel chart-panel" aria-labelledby="chart-title"><div class="section-heading"><div><p class="eyebrow">Frequency chart</p><h2 id="chart-title">Distribution of totals</h2></div></div><div class="bar-chart" role="img" aria-label="Bar chart of simulated dice totals">{% for row in result.rows %}<div class="bar-column"><span class="bar" style="--bar-height: {{ row.bar }}%" title="{{ row.total }}: {{ row.frequency }} results"></span><small>{{ row.total }}</small></div>{% endfor %}</div></section>
+<section class="panel table-panel"><div class="section-heading"><div><p class="eyebrow">Compare results</p><h2>Experimental vs theoretical</h2></div></div><div class="table-scroll"><table><thead><tr><th>Total</th><th>Frequency</th><th>Experimental</th><th>Theoretical</th><th>Difference</th></tr></thead><tbody>{% for row in result.rows %}<tr><th>{{ row.total }}</th><td>{{ row.frequency }}</td><td>{{ '%.2f'|format(row.experimental * 100) }}%</td><td>{{ '%.2f'|format(row.theoretical * 100) }}%</td><td>{{ '%+.2f'|format(row.difference * 100) }}%</td></tr>{% endfor %}</tbody></table></div></section>
+<section class="math-note"><p class="eyebrow">Why results converge</p><p>Random trials vary, especially in small samples. As the simulation count grows, short-term streaks have less influence and the experimental percentages tend to move closer to the theoretical distribution. This is the law of large numbers in action.</p></section>
+{% endif %}
+{% endblock %}

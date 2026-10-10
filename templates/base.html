@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0d10">
+    <meta name="description" content="{% block description %}Four beginner Python projects expanded into useful interactive web applications.{% endblock %}">
+    <title>{% block title %}Python Learning Lab{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+    <link rel="preload" href="{{ url_for('static', filename='fonts/Manrope-Variable.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <script>
+        (() => {
+            try {
+                const saved = localStorage.getItem('learning-lab-theme');
+                if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+            } catch (error) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark" aria-hidden="true">Py</span>
+            <span>Python Learning Lab<small>From scripts to systems</small></span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
+        <div class="header-actions" id="site-nav" data-nav>
+            <nav aria-label="Main navigation">
+                <a href="{{ url_for('index') }}"{% if request.endpoint == 'index' %} aria-current="page"{% endif %}>Home</a>
+                <a href="{{ url_for('planner') }}"{% if request.endpoint in ('planner', 'edit_task') %} aria-current="page"{% endif %}>Planner</a>
+                <a href="{{ url_for('guessing') }}"{% if request.endpoint == 'guessing' %} aria-current="page"{% endif %}>Guessing</a>
+                <a href="{{ url_for('rps') }}"{% if request.endpoint == 'rps' %} aria-current="page"{% endif %}>RPS</a>
+                <a href="{{ url_for('dice') }}"{% if request.endpoint == 'dice' %} aria-current="page"{% endif %}>Dice</a>
+            </nav>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme" aria-pressed="false" hidden>
+                <span class="theme-dot" aria-hidden="true"></span><span data-theme-label>Dark</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-stack" aria-live="polite">
+                {% for category, message in messages %}<p class="flash {{ category }}">{{ message }}</p>{% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <span>Python Learning Lab · {{ year }}</span>
+        <span>Built to make beginner logic visible.</span>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Adaptive Rock Paper Scissors · Python Learning Lab{% endblock %}
+{% block content %}
+<header class="page-hero compact rps-accent"><p class="eyebrow">03 · Pattern prediction</p><h1>Adaptive Rock Paper Scissors</h1><p>Compare a random opponent with a simple predictor that learns from your previous choices.</p></header>
+<section class="scoreboard" aria-label="Game statistics"><div><strong>{{ state.wins }}</strong><span>Wins</span></div><div><strong>{{ state.losses }}</strong><span>Losses</span></div><div><strong>{{ state.draws }}</strong><span>Draws</span></div><div><strong>{{ win_rate }}%</strong><span>Win rate</span></div></section>
+<div class="lab-layout">
+    <section class="panel game-panel">
+        <form method="post">
+            <fieldset class="mode-switch"><legend>Opponent mode</legend><label><input type="radio" name="mode" value="random"{% if mode != 'adaptive' %} checked{% endif %}> Random</label><label><input type="radio" name="mode" value="adaptive"{% if mode == 'adaptive' %} checked{% endif %}> Adaptive</label></fieldset>
+            <fieldset class="move-picker"><legend>Choose your move</legend>{% for key, choice in choices.items() %}<button type="submit" name="choice" value="{{ key }}"><span aria-hidden="true">{{ choice.symbol }}</span>{{ choice.label }}</button>{% endfor %}</fieldset>
+        </form>
+        {% if state.history %}{% set latest = state.history[-1] %}<div class="round-result {{ latest.result }}"><p>You chose <strong>{{ choices[latest.player].label }}</strong>. Opponent chose <strong>{{ choices[latest.opponent].label }}</strong>.</p><h2>{{ 'You win.' if latest.result == 'win' else ('Draw.' if latest.result == 'draw' else 'Opponent wins.') }}</h2>{% if latest.prediction %}<p>The adaptive opponent predicted {{ choices[latest.prediction].label }}.</p>{% endif %}</div>{% endif %}
+        <form method="post" class="reset-form"><input type="hidden" name="action" value="reset"><button class="text-button danger" type="submit">Reset statistics</button></form>
+    </section>
+    <aside class="panel explanation-panel"><p class="eyebrow">Explainable logic</p><h2>How the prediction works</h2><p>This is a small pattern detector, not advanced AI. It looks at what you previously played after your latest move. If that pattern has not occurred, it predicts your most frequent move. Then it plays the counter.</p><div class="logic-flow"><span>History</span><i>→</i><span>Prediction</span><i>→</i><span>Counter</span></div>{% if state.history %}<h3>Recent rounds</h3><ol class="round-history">{% for round in state.history|reverse %}<li><span>{{ choices[round.player].label }} vs {{ choices[round.opponent].label }}</span><strong>{{ round.result|title }}</strong></li>{% endfor %}</ol>{% endif %}</aside>
+</div>
+{% endblock %}

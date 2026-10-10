@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Edit assessment · Python Learning Lab{% endblock %}
+{% block content %}
+<header class="page-hero compact"><p class="eyebrow">Student Planner</p><h1>Edit assessment</h1><p>Update the details while keeping its completion state.</p></header>
+<section class="panel standalone-form">
+    <form method="post" novalidate>
+        <label>Title<input name="title" maxlength="120" required value="{{ form_values.get('title', '') }}">{% if errors.title %}<span class="field-error">{{ errors.title }}</span>{% endif %}</label>
+        <label>Description<textarea name="description" maxlength="1000" rows="4">{{ form_values.get('description', '') }}</textarea>{% if errors.description %}<span class="field-error">{{ errors.description }}</span>{% endif %}</label>
+        <div class="form-row">
+            <label>Module<select name="module" required>{% for module in modules %}<option{% if form_values.get('module') == module %} selected{% endif %}>{{ module }}</option>{% endfor %}</select>{% if errors.module %}<span class="field-error">{{ errors.module }}</span>{% endif %}</label>
+            <label>Due date<input type="date" name="due_date" required value="{{ form_values.get('due_date', '') }}">{% if errors.due_date %}<span class="field-error">{{ errors.due_date }}</span>{% endif %}</label>
+        </div>
+        <fieldset class="choice-group"><legend>Priority</legend>{% for priority in priorities %}<label><input type="radio" name="priority" value="{{ priority }}"{% if form_values.get('priority') == priority %} checked{% endif %}> {{ priority }}</label>{% endfor %}</fieldset>
+        <div class="form-actions"><button class="button primary" type="submit">Save changes</button><a class="button secondary" href="{{ url_for('planner') }}">Cancel</a></div>
+    </form>
+</section>
+{% endblock %}
